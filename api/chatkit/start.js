@@ -9,9 +9,14 @@ export default async function handler() {
         "Content-Type": "application/json",
         "OpenAI-Beta": "chatkit_beta=v1"
       },
-      // 👇 send `workflow`, not `workflow_id`
       body: JSON.stringify({
-        workflow: { id: process.env.CHATKIT_WORKFLOW_ID }
+        workflow: { id: process.env.CHATKIT_WORKFLOW_ID },
+        user: {
+          id: `shopify-${crypto.randomUUID()}`  // minimal required field
+          // name: "Guest",                     // optional
+          // email: "guest@example.com",        // optional
+          // metadata: { plan: "staging" }      // optional
+        }
       })
     });
 
