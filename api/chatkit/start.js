@@ -1,6 +1,16 @@
 export const config = { runtime: "edge" };
 
-export default async function handler() {
+const cors = {
+  "access-control-allow-origin": "*",              // or your exact domain
+  "access-control-allow-methods": "POST, OPTIONS",
+  "access-control-allow-headers": "content-type",
+};
+
+export default async function handler(req) {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: cors });
+  }
+
   try {
     const r = await fetch("https://api.openai.com/v1/chatkit/sessions", {
       method: "POST",
@@ -11,7 +21,7 @@ export default async function handler() {
       },
       body: JSON.stringify({
         workflow: { id: process.env.CHATKIT_WORKFLOW_ID },
-        user: `shopify-${crypto.randomUUID()}`   // ← string user id (required)
+        user: `shopify-${crypto.randomUUID()}`
       })
     });
 
@@ -20,16 +30,16 @@ export default async function handler() {
 
     if (!r.ok) {
       return new Response(JSON.stringify({ ok:false, where:"openai", status:r.status, body }), {
-        status: 500, headers: { "content-type": "application/json" }
+        status: 500, headers: { "content-type": "application/json", ...cors }
       });
     }
 
     return new Response(JSON.stringify({ ok:true, client_secret: body.client_secret }), {
-      status: 200, headers: { "content-type": "application/json" }
+      status: 200, headers: { "content-type": "application/json", ...cors }
     });
   } catch (e) {
     return new Response(JSON.stringify({ ok:false, where:"fetch", message:String(e) }), {
-      status: 500, headers: { "content-type": "application/json" }
+      status: 500, headers: { "content-type": "application/json", ...cors }
     });
   }
 }
