@@ -6,9 +6,12 @@ export default async function handler() {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "OpenAI-Beta": "chatkit=v1"     // 👈 required header
       },
-      body: JSON.stringify({ workflow_id: process.env.CHATKIT_WORKFLOW_ID })
+      body: JSON.stringify({
+        workflow_id: process.env.CHATKIT_WORKFLOW_ID
+      })
     });
 
     const ct = r.headers.get("content-type") || "";
