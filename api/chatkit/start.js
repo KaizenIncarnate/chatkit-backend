@@ -11,12 +11,7 @@ export default async function handler() {
       },
       body: JSON.stringify({
         workflow: { id: process.env.CHATKIT_WORKFLOW_ID },
-        user: {
-          id: `shopify-${crypto.randomUUID()}`  // minimal required field
-          // name: "Guest",                     // optional
-          // email: "guest@example.com",        // optional
-          // metadata: { plan: "staging" }      // optional
-        }
+        user: `shopify-${crypto.randomUUID()}`   // ← string user id (required)
       })
     });
 
