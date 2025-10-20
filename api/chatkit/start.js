@@ -1,15 +1,22 @@
 export const config = { runtime: "edge" };
 
 const cors = {
-  "access-control-allow-origin": "*",              // or your exact domain
+  "access-control-allow-origin": "*",
   "access-control-allow-methods": "POST, OPTIONS",
   "access-control-allow-headers": "content-type",
 };
 
 export default async function handler(req) {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: cors });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+
+  // If you have a visible agent deployment ID, set it in Vercel env as CHATKIT_DEPLOYMENT_ID.
+  const deploymentId = process.env.CHATKIT_DEPLOYMENT_ID;
+  const workflowId   = process.env.CHATKIT_WORKFLOW_ID;
+
+  // Prefer deployment if available; otherwise fall back to workflow.
+  const target = deploymentId
+    ? { deployment: { id: deploymentId } }
+    : { workflow:   { id: workflowId   } };
 
   try {
     const r = await fetch("https://api.openai.com/v1/chatkit/sessions", {
@@ -20,8 +27,8 @@ export default async function handler(req) {
         "OpenAI-Beta": "chatkit_beta=v1"
       },
       body: JSON.stringify({
-        workflow: { id: process.env.CHATKIT_WORKFLOW_ID },
-        user: `shopify-${crypto.randomUUID()}`
+        ...target,
+        user: `shopify-${crypto.randomUUID()}` // string user id required
       })
     });
 
